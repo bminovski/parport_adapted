@@ -28,7 +28,7 @@ loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CO
 # loadrt pid count=2
 loadrt limit1 count=2
 # loadrt pepper count=1
-
+loadrt pwmgen output_type=0
 
 # Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
 # t = Thermistor table (only epcos_B57560G1104 or 1 supported for now)
@@ -50,6 +50,9 @@ addf limit1.1                             servo-thread
 addf hpg.update                           servo-thread
 addf bb_gpio.write                        base-thread
 # addf pepper.update			  base-thread
+addf pwmgen.make-pulses 		  base-thread
+addf pwmgen.update 			  servo-thread
+
 
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
@@ -66,7 +69,8 @@ sets emcmot.00.enable FALSE
 
 net emcmot.00.enable <= axis.0.amp-enable-out
 net emcmot.00.enable => hpg.stepgen.00.enable
-
+net emcmot.00.enable  bb_gpio.p9.out-26
+setp bb_gpio.p9.out-26.invert 1
 
 # position command and feedback
 net emcmot.00.pos-cmd <= axis.0.motor-pos-cmd
@@ -90,9 +94,9 @@ setp hpg.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.00.step_type       0
 # P8.11
-setp hpg.stepgen.00.steppin		925          
+setp hpg.stepgen.00.steppin		811          
 # P8.12 
-setp hpg.stepgen.00.dirpin		913
+setp hpg.stepgen.00.dirpin		812
 
 
 # ################
@@ -168,9 +172,9 @@ setp hpg.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.02.step_type       0
 # P9.25 GPIO3_21
-setp hpg.stepgen.02.steppin          811
+setp hpg.stepgen.02.steppin          925
 # P9.13 GPIO0_31
-setp hpg.stepgen.02.dirpin           812
+setp hpg.stepgen.02.dirpin           913
 
 # ##################################################
 # Standard I/O - EStop, Enables, Limit Switches, Etc
@@ -183,20 +187,23 @@ setp hpg.stepgen.02.dirpin           812
 #net in3 bb_gpio.p9.in-41 => motion.digital-in-03
 
 # Standard outputs
-net out0 motion.digital-out-00 => bb_gpio.p8.out-13
-net out1 motion.digital-out-01 => bb_gpio.p9.out-26
+#net out0 motion.digital-out-00 => bb_gpio.p9.out-26
+#net out1 motion.digital-out-01 => bb_gpio.p9.out-26
 #net out2 motion.digital-out-02 => bb_gpio.p9.out-17
 #net out3 motion.digital-out-03 => bb_gpio.p9.out-18
 
 # create a signal for the estop loopback
-net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
-#net estop bb_gpio.p9.in-41 => iocontrol.0.emc-enable-in
+#net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+net estop-ext bb_gpio.p9.in-41 => iocontrol.0.emc-enable-in
 #setp bb_gpio.p9.in-41.invert 1
 
 # create signals for tool loading loopback
 #net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 #net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 
+# Spindle control
+#net spindle-enable motion.spindle-on => bb_gpio.p9.out-11
+#setp bb_gpio.p9.out-11.invert 1
 
 # home switches
 
@@ -213,3 +220,18 @@ net Yhome bb_gpio.p8.in-07 => axis.1.home-sw-in
 net Zhome bb_gpio.p8.in-19 => axis.2.home-sw-in
 # net Ahome bb_gpio.p8.in-17 => axis.3.home-sw-in
 # net Bhome bb_gpio.p9.in-23 => axis.4.home-sw-in
+
+# ##################################################
+# Spindle
+# #################################################
+
+setp pwmgen.0.pwm-freq 100.0
+setp pwmgen.0.scale 24000
+setp pwmgen.0.offset 0.0
+
+net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
+net spindle-on motion.spindle-on => pwmgen.0.enable
+net spindle-pwm pwmgen.0.pwm => bb_gpio.p8.out-13
+net spindle-at-speed => motion.spindle-at-speed
+net spindle-fwd motion.spindle-forward => bb_gpio.p9.out-11
+setp bb_gpio.p8.out-13.invert 1

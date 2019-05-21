@@ -85,39 +85,39 @@ while read PIN DIR JUNK ; do
         esac
 
 done <<- EOF
-	30	out	# p9.11		gpio0.30	
-	31	in	# p9.13		gpio0.31	
-	48	out	# p9.15		gpio1.16	Z_Step
-	27	out	# P8.17		gpio0.27	Home_Z
-	49	out	# P9.23		gpio1.17	Z_Dir
-	117	out	# P9.25		gpio3.21
-#	125	in	# P9.27		gpio3.19
-	14	out	# P9.26		gpio0.14	Mtr_Ena
+	30	out	# p9.11		gpio0.30	B_Step
+	31	out	# p9.13		gpio0.31	Z_Step
+	48	out	# p9.15		gpio1.16	X_Max
+	27	out	# P8.17		gpio0.27	Z_Min
+	49	out	# P9.23		gpio1.17	Spindle_Dir
+	117	out	# P9.25		gpio3.21	Z_Dir
+	125	in	# P9.27		gpio3.19	C_Home..........Ambiguous GPIO pin number Alternative 115
+	14	out	# P9.26		gpio0.14	Motors_Enable
 
-	15	in	# P9.24		gpio0.15	Spindle
-	61	out	# P8.26		gpio1.29	Status
-	60	out	# P9.12		gpio1.28
+	15	in	# P9.24		gpio0.15	B_Home
+	61	in	# P8.26		gpio1.29	Status_Led.....Supposedly Input ..... External hardware supports only input
+	60	out	# P9.12		gpio1.28	A_Min
 	47	out	# P8.15		gpio1.15	Y_Dir
-	7	out	# P9.42		gpio0.7
-	65	out	# P8.18		gpio2.1
+	7	out	# P9.42		gpio0.7		B_Dir
+	65	out	# P8.18		gpio2.1		Z_Max
 	2	out	# P9.22		gpio0.2		A_Step
 	3	out	# P9.21		gpio0.3		A_Dir
 
-	69	out	# P8.9		gpio2.5		
-	66	in	# P8.7		gpio2.2		Enablen
-	67	out	# P8.8		gpio2.3		Home_X
-	68	out	# P8.10		gpio2.4		Home_Y
+	69	out	# P8.9		gpio2.5		C_Step
+	66	in	# P8.7		gpio2.2		X_Home
+	67	out	# P8.8		gpio2.3		C_Dir
+	68	out	# P8.10		gpio2.4		Y_Min
 	44	out	# P8.12		gpio1.12	X_Step
 	45	out	# P8.11		gpio1.13	X_Dir
-	26	out	# P8.14		gpio0.26	
+	26	out	# P8.14		gpio0.26	Y_Max
 	46	out	# P8.16		gpio1.14	Y_Step
 
-	23	out	# P8.13		gpio0.23	PWM0
-	22	in	# P8.19		gpio0.22	PWM1
-#	50	out	# P9.14		gpio1.18	PWM2
-	51	out	# P9.16		gpio1.19	
-	5	in	# p9.17		gpio0.5		B_Dir
-	4	in	# p9.18		gpio0.4		B_Step
-	20	in	# p9.41		gpio0.20
-	122	out	# p9.30		gpio3.16
+	23	out	# P8.13		gpio0.23	PWM0 Spindle
+	22	in	# P8.19		gpio0.22	Y_Home
+	50	out	# P9.14		gpio1.18	X_Min...........Ambiguous GPIO pin number Alternativa 40
+	51	out	# P9.16		gpio1.19	A_Max
+	5	in	# p9.17		gpio0.5		Z_Home
+	4	in	# p9.18		gpio0.4		A_Home
+	20	in	# p9.41		gpio0.20	E_Stop
+	122	out	# p9.30		gpio3.16	Axes_Enable
 EOF
